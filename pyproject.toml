@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "class_collapse"
+version = "0.0.1"
+description = "Class Collapse GDA project"
+requires-python = ">=3.10"
+dependencies = [
+    "tensorboard==2.15.1",
+    "lightning==2.1.2",
+    "scikit-learn==1.3.2",
+    "umap-learn==0.5.5",
+    "matplotlib==3.8.1",
+    "natsort==8.4.0",
+    "hydra-core==1.3.2",
+]
+
+[tool.setuptools.packages.find]
+include = ["class_collapse"]
+
+[project.scripts]
+ccrun = "class_collapse.main:main"
+
+[project.optional-dependencies]
+cuda = ["torch==2.1.1+cu118"]
+cpu = ["torch==2.1.1"]

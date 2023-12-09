@@ -1,0 +1,24 @@
+model:
+  name: default_model
+  embeddings_features: 2
+  train: true
+  seed: 29
+  epochs: 100
+
+loss:
+  name: cross_entropy
+
+dataset:
+  name: synthetic_gaussian
+  batch_size: -1
+
+defaults:
+  - _self_
+  - /output: default_output
+
+hydra:
+  job:
+    chdir: true
+  run:
+    dir: ./outputs/${model.name}_${dataset.name}_${loss.name}_${now:%Y-%m-%d}/${now:%H-%M-%S}
+# tensorflow
