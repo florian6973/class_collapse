@@ -42,6 +42,8 @@ def make_dataloader(config):
         X, y, y_fine = get_synthetic_dataset(config)
     elif config.hydra_config["dataset"]["name"] == "house":
         X, y, y_fine = get_house_dataset(config)
+    else:
+        raise ValueError("Unknown dataset")
 
     X_train, X_test, y_train_all, y_test_all = train_test_split(
         X, np.stack((y, y_fine), axis=-1), test_size=0.33, random_state=42
