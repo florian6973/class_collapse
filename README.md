@@ -14,11 +14,11 @@
 
 ## Use
 
-### Class collapse highlight on circle
+### Class collapse highlight on circle (section 3 of the report)
 
 To run the script about the class circle study, you can just run the file `scripts/cc_circle.py` with Python.
 
-### Using $L_{spread}$ on datasets
+### Using $L_{spread}$ on datasets (section 4 and 5 of the report)
 
 To run the study on embeddings, you can use the console script `ccrun`, like `ccrun +dataset=house +loss=mse`.
 
