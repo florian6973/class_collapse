@@ -16,7 +16,7 @@
 
 ### Class collapse highlight on circle
 
-To run the script about the class circle study, you can just run the file `scripts/cc_circle.py`
+To run the script about the class circle study, you can just run the file `scripts/cc_circle.py` with Python.
 
 ### Using $L_{spread}$ on datasets
 
