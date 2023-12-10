@@ -3,7 +3,6 @@ import os
 import torch
 from sklearn.preprocessing import StandardScaler
 
-# umap of the dataset
 
 def get_house_dataset(config):        
     #load dataset
@@ -38,20 +37,12 @@ def get_house_dataset(config):
     #delete rows with nan values
     house_data = house_data.dropna()
 
-    #convert the dataset into a tensor
+    #normalize the data
     scaler = StandardScaler()
     X = house_data[features]
     X = scaler.fit_transform(X)
     y = house_data['>163k']
     y_s = house_data['quintile_range'].astype('category').cat.codes
-
-#     X = torch.tensor(X.values).float()
-#     y = torch.tensor(y.values).float()
-#     y_s
-
-#     #scale the dataset
-#     scaler = StandardScaler()
-#     X = scaler.fit_transform(X)
 
     return X, y.to_numpy(), y_s.to_numpy()
 

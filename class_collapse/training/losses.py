@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+# For test only
 class CustomCELoss(nn.Module):
     def __init__(self):
         super(CustomCELoss, self).__init__()
@@ -12,7 +13,7 @@ class CustomCELoss(nn.Module):
         return -torch.sum(log_softmax_predictions[torch.arange(len(predictions)), targets])/len(predictions)
     
 
-# source git: ...
+# source git: https://github.com/HobbitLong/SupContrast/blob/master/losses.py
 class SupConLoss(nn.Module):
     """Supervised Contrastive Learning: https://arxiv.org/pdf/2004.11362.pdf.
     It also supports the unsupervised contrastive loss in SimCLR"""
@@ -102,6 +103,7 @@ class SupConLoss(nn.Module):
 
         return loss
 
+# adapted from https://github.com/HazyResearch/thanos-code/blob/main/unagi/tasks/loss_fns/contrastive_loss.py
 class CustomInfoNCELoss(nn.Module):
     def __init__(self):
         super(CustomInfoNCELoss, self).__init__()
@@ -109,102 +111,13 @@ class CustomInfoNCELoss(nn.Module):
 
     def forward(self, embeddings, labels):
         num = torch.matmul(embeddings, embeddings.T) / self.temperature
-        # print(num.shape)
         numerator_spread = -1 * torch.diagonal(num, 0)
-        # print(numerator_spread.shape)
+
         denominator_spread = torch.stack(
             [
-                # reshape num with an extra dimension,
-                # then take the sum over everything
                 torch.logsumexp(num[i][labels==labels[i]], 0).sum()
                 for i in range(len(embeddings))
             ]
         )
-        # print(denominator_spread.shape)
         log_prob_spread = numerator_spread + denominator_spread
-        # print(log_prob_spread.shape)
-        # print(log_prob_spread)
         return log_prob_spread.mean()
-        # loss = 0
-        # for i in range(len(embeddings)):
-        #     zi = embeddings[i]
-        #     num = torch.dot(zi, zi) / self.temperature
-        #     denom = 0
-        #     for j in range(len(embeddings)):
-        #         if labels[i] != labels[j]:
-        #             continue
-        #         zj = embeddings[j]
-        #         denom += torch.exp(torch.dot(zi, zj) / self.temperature)
-        #     denom = torch.log(denom)
-        #     loss += num - denom
-        # return -loss / len(embeddings)
-
-
-        # logits = torch.matmul(embeddings, embeddings.T)/self.temperature
-        # # print(logits.shape)
-        # # print(logits)
-
-        # # log sum exp for element in a class
-        # l_exp = torch.exp(logits)
-        # loss = 0
-        # # can be multiclass
-        # for label in labels.unique():
-        #     # print()
-        #     l_exp_mask = torch.zeros_like(l_exp)
-        #     l_exp_mask[labels==label, labels==label] = 1
-        #     # print(l_exp_mask)
-
-        #     l_exp_mask = l_exp_mask * l_exp
-        #     # print(l_exp_mask)
-
-        #     l_exp_sum = torch.sum(l_exp_mask, dim=1)
-        #     l_exp_sum[l_exp_sum == 0] = 1
-        #     # print(l_exp_sum)
-        #     l_exp_sum = torch.sum(torch.log(l_exp_sum))
-        #     # print(l_exp_sum)
-        #     loss += torch.sum(l_exp_mask) - l_exp_sum*len(labels[labels==label])
-        #     # print(loss)
-
-        # return -loss / len(labels)
-
-
-
-
-
-
-
-class CustomSupConLoss(nn.Module):
-    def __init__(self):
-        super(CustomSupConLoss, self).__init__()
-        self.temperature = 0.1
-
-    def forward(self, embeddings, labels):
-        assert len(embeddings) == len(labels), "Predictions and targets must have the same length."
-
-        loss = 0
-
-        for i in range(len(embeddings)):
-            zi = embeddings[i]
-            # use mask instead to optimize
-            ais = torch.cat([embeddings[:i],embeddings[i+1:]])
-            ais_targets = torch.cat([labels[:i], labels[i+1:]])
-            pis = ais[ais_targets == labels[i]]
-
-            
-
-            # loss_i 
-            # for pi in pis:
-            #     loss += pi*zi/self.temperature
-            loss += torch.sum(pis @ zi / self.temperature)/len(pis)
-
-            # should be only on negative sample sum?
-            loss -= torch.logsumexp(ais @ zi / self.temperature, dim=0) # dim = 0
-                
-            # print(predictions[i], targets[i])
-            # print()
-
-        return -loss/len(embeddings)*self.temperature
-        # assert len(predictions) == len(targets), "Predictions and targets must have the same length."
-        # log_softmax = nn.LogSoftmax(dim=1)
-        # log_softmax_predictions = log_softmax(predictions)
-        # return -torch.sum(log_softmax_predictions[torch.arange(len(predictions)), targets])/len(predictions)

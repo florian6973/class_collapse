@@ -24,15 +24,14 @@ def main(cfg: DictConfig):
     data = make_dataloader(config)
 
     model = get_model(config, data.train_dataloader, data.X_train.shape[1])
+    
     if config.hydra_config["model"]["visualize"]:
         y = model(torch.randn(1, data.X_train.shape[1]))
-        # https://stackoverflow.com/questions/74394812/cannot-plot-model-graph-with-pytorch-hiddenlayer-module-torch-onnx-has-no-at
-        # hl.build_graph(model, torch.randn(1, 2)).build_dot().render("modelhl", format="png")
+        # need to install graphviz to have this working (dot command)
         make_dot(y.mean(), params=dict(model.named_parameters())).render("model", format="png")
     
     plot_embeddings(config, model, data.test_dataloader, "before training")
     plot_classification(config, model, data, "before training")
-    # exit()
 
     model = train_model(config, model, data.train_dataloader)
 

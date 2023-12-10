@@ -61,9 +61,6 @@ def make_dataloader(config):
     if batch_size == -1:
         batch_size = len(X_train)
 
-    # increase batch size for gpu
-    # train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
-    # val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=False)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=len(X_test), shuffle=False)
 
