@@ -49,4 +49,4 @@ def generate_dataset(config: Config) -> (DataLoader, DataLoader):
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=len(X_test), shuffle=False)
 
-    return train_dataloader, val_dataloader
+    return X_train, X_test, y_train, y_test, train_dataloader, val_dataloader

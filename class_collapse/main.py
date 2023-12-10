@@ -6,6 +6,7 @@ from class_collapse.config.config import Config
 from class_collapse.data.synthetic_dataset import generate_dataset
 from class_collapse.training.autoencoder import train_model, get_model
 from class_collapse.eval.plot_embeddings import plot_embeddings
+from class_collapse.eval.plot_classification import plot_classification
 
 @hydra.main(config_path="config", config_name="default", version_base="1.2")
 def main(cfg: DictConfig):
@@ -18,16 +19,20 @@ def main(cfg: DictConfig):
     config = Config(hydra_config=cfg, device=device)
     print("Using device:", config.device)
 
-    train_dataloader, test_dataloader = generate_dataset(config)
+    X_train, X_test, y_train, y_test, train_dataloader, test_dataloader = generate_dataset(config)
 
     model = get_model(config, train_dataloader)
     
     plot_embeddings(config, model, test_dataloader, "before training")
+    plot_classification(config, model, X_train, y_train, X_test, y_test, "before training")
     # exit()
 
     model = train_model(config, model, train_dataloader)
 
     plot_embeddings(config, model, test_dataloader, "after training")
+    plot_classification(config, model, X_train, y_train, X_test, y_test, "after training")
+
+
 
 
 
