@@ -65,9 +65,9 @@ def plot_embeddings(config: Config, model, test_dataloader, comment=""):
     plt.subplot(1,2,1)
     # plt.scatter(embeddings[:,0], [1]*len(embeddings), c=y_test_sample, alpha=alpha_val)
     if config.hydra_config["model"]["embeddings_features"] == 2:
-        plt.scatter(embeddings[:,0], embeddings[:,1], c=labels, alpha=alpha_val)
+        plt.scatter(embeddings[:,0], embeddings[:,1], c=labels, alpha=alpha_val, cmap='flag')
     else:
-        plt.scatter(embeddings[:,0], [1]*len(embeddings), c=labels, alpha=alpha_val)
+        plt.scatter(embeddings[:,0], [1]*len(embeddings), c=labels, alpha=alpha_val, cmap='flag')
     plt.xlabel("x1")
     plt.ylabel("x2")
     plt.title(config.hydra_config["model"]["name"] + " " + comment + " " + ",".join([str(round(x, 2)) for x in cs_e]))
