@@ -6,11 +6,12 @@ from class_collapse.training.losses import CustomSupConLoss, SupConLoss, CustomC
 from torch.utils.data import Dataset, DataLoader
 
 class AutoencoderClassifier(L.LightningModule):
-    def __init__(self, encoder, linear_classifier):
+    def __init__(self, encoder, linear_classifier, config: Config):
         super().__init__()
         self.encoder = encoder
         self.loss_values = []
         self.current_loss_values = []
+        self.config = config
         # self.linear_classifier = linear_classifier
 
     def forward(self, x):
@@ -35,7 +36,7 @@ class AutoencoderClassifier(L.LightningModule):
         return loss
     
     def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = optim.Adam(self.parameters(), lr=self.config.hydra_config["model"]["lr"])
         # optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
         return optimizer
     
@@ -52,7 +53,7 @@ def get_model(config: Config, dataloader: DataLoader) -> L.LightningModule:
     linear_classifier = nn.Linear(autoencoder_features_nb, 2)
 
     if config.hydra_config["model"]["name"] == "encoder_only":
-        model = AutoencoderClassifier(encoder, linear_classifier)
+        model = AutoencoderClassifier(encoder, linear_classifier, config)
     else:
         raise ValueError("Unknown model")
     

@@ -4,6 +4,7 @@ model:
   train: true
   seed: 29
   epochs: 100
+  lr: 0.01
 
 loss:
   name: cross_entropy
