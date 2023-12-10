@@ -1,4 +1,2 @@
 name: nce
 temperature: 0.1
-augmentation: false
-alpha: 0.4
