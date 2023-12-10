@@ -4,8 +4,9 @@ model:
   embeddings_hidden: 10
   train: true
   seed: 29
-  epochs: 300
+  epochs: 100
   lr: 0.003
+  visualize: true
 
 loss:
   name: MSE_loss

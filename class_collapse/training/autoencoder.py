@@ -62,16 +62,17 @@ class Autoencoder(L.LightningModule):
             self.loss_values.append(loss.item())
         self.current_loss_values.clear()  # free memory'
 
-def get_model(config: Config, dataloader: DataLoader) -> L.LightningModule:
+def get_model(config: Config, dataloader: DataLoader, dim_data) -> L.LightningModule:
     autoencoder_features_nb = config.hydra_config["model"]["embeddings_features"]
     autoencoder_features_hidden = config.hydra_config["model"]["embeddings_hidden"]
-    encoder = nn.Sequential(nn.Linear(2, autoencoder_features_hidden), 
+    
+    encoder = nn.Sequential(nn.Linear(dim_data, autoencoder_features_hidden), 
                             nn.ReLU(), 
                             nn.Linear(autoencoder_features_hidden, autoencoder_features_nb))
     # linear_classifier = nn.Linear(autoencoder_features_nb, 2)
     decoder = nn.Sequential(nn.Linear(autoencoder_features_nb, autoencoder_features_hidden), 
                             nn.ReLU(), 
-                            nn.Linear(autoencoder_features_hidden, 2))
+                            nn.Linear(autoencoder_features_hidden, dim_data))
 
     if config.hydra_config["model"]["name"] == "encoder_only":
         model = Autoencoder(encoder, decoder, config)

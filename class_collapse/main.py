@@ -3,10 +3,12 @@ from omegaconf import DictConfig, OmegaConf
 import os
 import torch
 from class_collapse.config.config import Config
-from class_collapse.data.synthetic_dataset import generate_dataset
+from class_collapse.data.dataloaders import make_dataloader
 from class_collapse.training.autoencoder import train_model, get_model
 from class_collapse.eval.plot_embeddings import plot_embeddings
 from class_collapse.eval.plot_classification import plot_classification
+from torchviz import make_dot
+
 
 @hydra.main(config_path="config", config_name="default", version_base="1.2")
 def main(cfg: DictConfig):
@@ -19,18 +21,23 @@ def main(cfg: DictConfig):
     config = Config(hydra_config=cfg, device=device)
     print("Using device:", config.device)
 
-    X_train, X_test, y_train, y_test, train_dataloader, test_dataloader = generate_dataset(config)
+    data = make_dataloader(config)
 
-    model = get_model(config, train_dataloader)
+    model = get_model(config, data.train_dataloader, data.X_train.shape[1])
+    if config.hydra_config["model"]["visualize"]:
+        y = model(torch.randn(1, data.X_train.shape[1]))
+        # https://stackoverflow.com/questions/74394812/cannot-plot-model-graph-with-pytorch-hiddenlayer-module-torch-onnx-has-no-at
+        # hl.build_graph(model, torch.randn(1, 2)).build_dot().render("modelhl", format="png")
+        make_dot(y.mean(), params=dict(model.named_parameters())).render("model", format="png")
     
-    plot_embeddings(config, model, test_dataloader, "before training")
-    plot_classification(config, model, X_train, y_train, X_test, y_test, "before training")
+    plot_embeddings(config, model, data.test_dataloader, "before training")
+    plot_classification(config, model, data, "before training")
     # exit()
 
-    model = train_model(config, model, train_dataloader)
+    model = train_model(config, model, data.train_dataloader)
 
-    plot_embeddings(config, model, test_dataloader, "after training")
-    plot_classification(config, model, X_train, y_train, X_test, y_test, "after training")
+    plot_embeddings(config, model, data.test_dataloader, "after training")
+    plot_classification(config, model, data, "after training")
 
 
 

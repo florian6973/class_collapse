@@ -71,12 +71,9 @@ import matplotlib.pyplot as plt
 import torch
 
 class KNNClassifier:
-    def __init__(self, model, X_train, X_test, y_train, y_test):
+    def __init__(self, model, data):
         self.model = model
-        self.X_train = X_train
-        self.X_test = X_test
-        self.y_train = y_train
-        self.y_test = y_test
+        self.data = data
         self.knn_fine = KNeighborsClassifier(n_neighbors=3)
         self.knn_coarse = KNeighborsClassifier(n_neighbors=3)
 
@@ -84,22 +81,17 @@ class KNNClassifier:
         embeddings = self.model(torch.Tensor(x)).detach().cpu().numpy()
         return embeddings
 
-    def fit(self):
-        gmm = GaussianMixture(n_components=4, random_state=42)
-        X_all = (np.concatenate((self.X_train, self.X_test)))
-        gmm.fit(X_all)
+    def fit(self):        
+        self.y_train_fine = self.data.y_train_fine
+        self.y_test_fine = self.data.y_test_fine
 
-        cluster_assignments = gmm.predict(X_all)
-        self.y_train_fine = cluster_assignments[:self.X_train.shape[0]]
-        self.y_test_fine = cluster_assignments[self.X_train.shape[0]:]
+        self.knn_fine.fit(self.get_embeddings(self.data.X_train), self.data.y_train_fine)
+        self.knn_coarse.fit(self.get_embeddings(self.data.X_train), self.data.y_train)
 
-        self.knn_fine.fit(self.get_embeddings(self.X_train), self.y_train_fine)
-        self.knn_coarse.fit(self.get_embeddings(self.X_train), self.y_train)
-
-        return self.X_test, self.y_test_fine
+        return self.data.X_test, self.y_test_fine
 
     def predict(self):
-        X_test_embs = self.get_embeddings(self.X_test)
+        X_test_embs = self.get_embeddings(self.data.X_test)
         y_pred_fine = self.knn_fine.predict(X_test_embs)
         y_pred_coarse = self.knn_coarse.predict(X_test_embs)
         return X_test_embs, y_pred_fine, y_pred_coarse
