@@ -102,6 +102,77 @@ class SupConLoss(nn.Module):
 
         return loss
 
+class CustomInfoNCELoss(nn.Module):
+    def __init__(self):
+        super(CustomInfoNCELoss, self).__init__()
+        self.temperature = 0.1
+
+    def forward(self, embeddings, labels):
+        num = torch.matmul(embeddings, embeddings.T) / self.temperature
+        # print(num.shape)
+        numerator_spread = -1 * torch.diagonal(num, 0)
+        # print(numerator_spread.shape)
+        denominator_spread = torch.stack(
+            [
+                # reshape num with an extra dimension,
+                # then take the sum over everything
+                torch.logsumexp(num[i][labels==labels[i]], 0).sum()
+                for i in range(len(embeddings))
+            ]
+        )
+        # print(denominator_spread.shape)
+        log_prob_spread = numerator_spread + denominator_spread
+        # print(log_prob_spread.shape)
+        # print(log_prob_spread)
+        return log_prob_spread.mean()
+        # loss = 0
+        # for i in range(len(embeddings)):
+        #     zi = embeddings[i]
+        #     num = torch.dot(zi, zi) / self.temperature
+        #     denom = 0
+        #     for j in range(len(embeddings)):
+        #         if labels[i] != labels[j]:
+        #             continue
+        #         zj = embeddings[j]
+        #         denom += torch.exp(torch.dot(zi, zj) / self.temperature)
+        #     denom = torch.log(denom)
+        #     loss += num - denom
+        # return -loss / len(embeddings)
+
+
+        # logits = torch.matmul(embeddings, embeddings.T)/self.temperature
+        # # print(logits.shape)
+        # # print(logits)
+
+        # # log sum exp for element in a class
+        # l_exp = torch.exp(logits)
+        # loss = 0
+        # # can be multiclass
+        # for label in labels.unique():
+        #     # print()
+        #     l_exp_mask = torch.zeros_like(l_exp)
+        #     l_exp_mask[labels==label, labels==label] = 1
+        #     # print(l_exp_mask)
+
+        #     l_exp_mask = l_exp_mask * l_exp
+        #     # print(l_exp_mask)
+
+        #     l_exp_sum = torch.sum(l_exp_mask, dim=1)
+        #     l_exp_sum[l_exp_sum == 0] = 1
+        #     # print(l_exp_sum)
+        #     l_exp_sum = torch.sum(torch.log(l_exp_sum))
+        #     # print(l_exp_sum)
+        #     loss += torch.sum(l_exp_mask) - l_exp_sum*len(labels[labels==label])
+        #     # print(loss)
+
+        # return -loss / len(labels)
+
+
+
+
+
+
+
 class CustomSupConLoss(nn.Module):
     def __init__(self):
         super(CustomSupConLoss, self).__init__()

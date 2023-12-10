@@ -23,7 +23,7 @@ class SyntheticDataset(Dataset):
     
 def generate_dataset(config: Config) -> (DataLoader, DataLoader):    
     X, y = make_classification(
-                n_samples=10000, 
+                n_samples=300, 
                 n_features=2, 
                 n_informative=2, 
                 n_redundant=0, 

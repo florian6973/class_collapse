@@ -1,13 +1,14 @@
 model:
   name: default_model
   embeddings_features: 2
+  embeddings_hidden: 10
   train: true
   seed: 29
-  epochs: 100
-  lr: 0.01
+  epochs: 300
+  lr: 0.003
 
 loss:
-  name: cross_entropy
+  name: MSE_loss
 
 dataset:
   name: synthetic_gaussian

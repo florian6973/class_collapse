@@ -23,6 +23,7 @@ def main(cfg: DictConfig):
     model = get_model(config, train_dataloader)
     
     plot_embeddings(config, model, test_dataloader, "before training")
+    # exit()
 
     model = train_model(config, model, train_dataloader)
 

@@ -1,14 +1,15 @@
 from torch import nn, optim
 import lightning as L
 from class_collapse.config.config import Config
-from class_collapse.training.losses import CustomSupConLoss, SupConLoss, CustomCELoss
+from class_collapse.training.losses import CustomInfoNCELoss, CustomSupConLoss, SupConLoss, CustomCELoss
 
 from torch.utils.data import Dataset, DataLoader
 
-class AutoencoderClassifier(L.LightningModule):
-    def __init__(self, encoder, linear_classifier, config: Config):
+class Autoencoder(L.LightningModule):
+    def __init__(self, encoder, decoder, config: Config):
         super().__init__()
         self.encoder = encoder
+        self.decoder = decoder
         self.loss_values = []
         self.current_loss_values = []
         self.config = config
@@ -21,7 +22,23 @@ class AutoencoderClassifier(L.LightningModule):
     
     def training_step(self, batch, batch_idx):
         x, y = batch
+        x = x.view(x.size(0), -1)
         y_hat = self(x)
+        if self.config.hydra_config["loss"]["name"] == "MSE_loss":
+            x_hat = self.decoder(y_hat)
+            loss = nn.functional.mse_loss(x_hat, x)
+        # elif self.config.hydra_config["loss"]["name"] == "CE_loss":
+        #     loss = nn.functional.cross_entropy(y_hat, y)
+        elif self.config.hydra_config["loss"]["name"] == "supcon_2020":
+            loss = SupConLoss()(y_hat.unsqueeze(1), labels=y)
+        elif self.config.hydra_config["loss"]["name"] == "nce":
+            loss = CustomInfoNCELoss()(y_hat, y) # diverges
+        elif self.config.hydra_config["loss"]["name"] == "spread":
+            alpha = self.config.hydra_config["loss"]["alpha"]
+            loss = (1-alpha)*SupConLoss()(y_hat.unsqueeze(1), labels=y) + \
+                    alpha*CustomInfoNCELoss()(y_hat, y)
+        else:
+            raise ValueError("Unknown loss")
         # print(y_hat.shape)
         # print(y)
         # loss = nn.functional.cross_entropy(y_hat, y)
@@ -29,7 +46,7 @@ class AutoencoderClassifier(L.LightningModule):
         # print("Pytorch", loss)
         # loss = CustomSupConLoss()(y_hat, y)
         # print(y_hat.unsqueeze(1).shape)
-        loss = SupConLoss()(y_hat.unsqueeze(1), labels=y)
+        # loss = SupConLoss()(y_hat.unsqueeze(1), labels=y)
         # print("Custom", loss2)
         self.log("train_loss", loss)
         self.current_loss_values.append(loss)
@@ -47,13 +64,17 @@ class AutoencoderClassifier(L.LightningModule):
 
 def get_model(config: Config, dataloader: DataLoader) -> L.LightningModule:
     autoencoder_features_nb = config.hydra_config["model"]["embeddings_features"]
-    encoder = nn.Sequential(nn.Linear(2, 10), 
+    autoencoder_features_hidden = config.hydra_config["model"]["embeddings_hidden"]
+    encoder = nn.Sequential(nn.Linear(2, autoencoder_features_hidden), 
                             nn.ReLU(), 
-                            nn.Linear(10, autoencoder_features_nb))
-    linear_classifier = nn.Linear(autoencoder_features_nb, 2)
+                            nn.Linear(autoencoder_features_hidden, autoencoder_features_nb))
+    # linear_classifier = nn.Linear(autoencoder_features_nb, 2)
+    decoder = nn.Sequential(nn.Linear(autoencoder_features_nb, autoencoder_features_hidden), 
+                            nn.ReLU(), 
+                            nn.Linear(autoencoder_features_hidden, 2))
 
     if config.hydra_config["model"]["name"] == "encoder_only":
-        model = AutoencoderClassifier(encoder, linear_classifier, config)
+        model = Autoencoder(encoder, decoder, config)
     else:
         raise ValueError("Unknown model")
     
