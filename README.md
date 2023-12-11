@@ -4,7 +4,7 @@
 
 [Class project](https://www.jeanfeydy.com/Teaching/index.html) based on the study of [this paper](https://www.mdpi.com/2813-0324/3/1/4).
 
-**The report can be found [here](https://drive.google.com/file/d/1ce7IDspPz6T-n4BJ8ze9sglegq1TEYSB/view?usp=sharing).**
+**The report can be found [here](https://drive.google.com/file/d/1ce7IDspPz6T-n4BJ8ze9sglegq1TEYSB/view?usp=sharing).** The trained models for the report can be downloaded [here](https://drive.google.com/file/d/1BPWWO2yACTlUelyizWTewFyiEItB-QoC/view?usp=sharing).
 
 ## Installation
 
