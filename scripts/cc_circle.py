@@ -4,9 +4,13 @@ from scipy.stats import uniform_direction
 import numba
 from numba import prange
 import matplotlib.pyplot as plt
+import matplotlib
 
 
 np.set_printoptions(precision=3, suppress=True)
+# matplotlib.rc('xtick', labelsize=20) 
+# matplotlib.rc('ytick', labelsize=20)
+matplotlib.rcParams.update({'font.size': 20})
 
 
 def compute(tau, N_per_class, classes, alpha, seed=46):        
@@ -68,16 +72,16 @@ def plot_spread(tau, N_per_class, classes, alpha=None, alphas=None, seed=46):
                 Drawing_uncolored_circle = plt.Circle((0,0), 1, fill=False)
                 axs[0].add_artist(Drawing_uncolored_circle)
                 axs[0].set_title("Before optimization")
-                axs[0].set_xlim(-1.3, 1.3)
+                axs[0].set_xlim(-1.3, 1.3) 
                 axs[0].set_ylim(-1.3, 1.3)
             axs[i].scatter(optimized_unit_vector[:,0], optimized_unit_vector[:,1], alpha=0.9, 
                         c=classes_labels, cmap='flag', s=200)
             Drawing_uncolored_circle = plt.Circle((0,0), 1, fill=False)
             axs[i].add_artist(Drawing_uncolored_circle)
-            axs[i].set_title(f"alpha={alpha}")
+            axs[i].set_title(fr"$\alpha={alpha}$")
             axs[i].set_xlim(-1.3, 1.3)
             axs[i].set_ylim(-1.3, 1.3)
-            axs[i].legend()
+            # axs[i].legend()
         plt.tight_layout()
         plt.show()
 
@@ -140,9 +144,9 @@ for tau in [0.1, 0.25, 0.5, 1, 2]:
         print(alpha)
         sps.append(compute(tau, 10, 2, alpha)[2])
     sps = np.array(sps)
-    plt.plot(alphas, np.mean(sps, axis=1), label=f"tau={tau}")
+    plt.plot(alphas, np.mean(sps, axis=1), label=fr"$\tau={tau}$")
 
-plt.xlabel("alpha")
-plt.ylabel("spread")
+plt.xlabel(r"$\alpha$")
+plt.ylabel("Spread $s$")
 plt.legend()
 plt.show()

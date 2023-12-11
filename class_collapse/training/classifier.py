@@ -1,7 +1,7 @@
 from torch import nn, optim
 import lightning as L
 from class_collapse.config.config import Config
-from class_collapse.training.losses import CustomInfoNCELoss, CustomSupConLoss, SupConLoss, CustomCELoss
+from class_collapse.training.losses import CustomInfoNCELoss, SupConLoss, CustomCELoss
 from torch.utils.data import Dataset, DataLoader
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np

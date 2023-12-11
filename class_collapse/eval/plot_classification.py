@@ -4,6 +4,9 @@ import numpy as np
 
 from class_collapse.eval.plot_embeddings import compute_umap
 
+import matplotlib
+matplotlib.rcParams.update({'font.size': 20})
+
 def plot_classification(config, model, data, comment):
     if data.X_test.shape[1] > 2:
         data_emb = compute_umap(data.X_test)

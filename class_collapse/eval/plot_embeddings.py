@@ -7,6 +7,9 @@ import torch.nn.functional as F
 import torch
 import umap
 
+import matplotlib
+matplotlib.rcParams.update({'font.size': 20})
+
 def compute_umap(x):
     reducer = umap.UMAP()
     return reducer.fit_transform(x)
@@ -63,3 +66,23 @@ def plot_embeddings(config: Config, model, test_dataloader, comment=""):
     plt.ylabel("x2")
     plt.title("Groundtruth " + ",".join([str(round(x, 2)) for x in cs_d]), fontsize=20)
     plt.savefig(f"embeddings_{comment}.png")
+
+    
+    plt.figure(figsize=(9, 9))
+    plt.scatter(data_emb[:,0], data_emb[:,1], c=labels, alpha=alpha_val, cmap='flag')
+    # plt.title("Groundtruth " + ",".join([str(round(x, 2)) for x in cs_d]), fontsize=20)
+    cs_title = f"Cosine similarity cluster 1: {round(cs_d[0], 2)}\nCosine similarity cluster 2: {round(cs_d[1], 2)}"
+    assert len(cs_d) == 2
+    plt.title("Groundtruth\n" + cs_title, fontsize=20)
+    plt.tight_layout()
+    plt.savefig(f"embeddings_{comment}_groundtruth.png")
+
+    
+    plt.figure(figsize=(9, 9))
+    plt.scatter(embeddings[:,0], embeddings[:,1] if config.hydra_config["model"]["embeddings_features"] == 2 else [1]*len(embeddings), c=labels, alpha=alpha_val, cmap='flag')
+    # plt.title("Groundtruth " + ",".join([str(round(x, 2)) for x in cs_d]), fontsize=20)
+    cs_title = f"Cosine similarity cluster 1: {round(cs_e[0], 2)}\nCosine similarity cluster 2: {round(cs_e[1], 2)}"
+    assert len(cs_d) == 2
+    plt.title(comment.capitalize() + "\n" + cs_title, fontsize=20)
+    plt.tight_layout()
+    plt.savefig(f"embeddings_{comment}_learnt.png")
