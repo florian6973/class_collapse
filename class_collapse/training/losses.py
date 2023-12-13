@@ -105,9 +105,9 @@ class SupConLoss(nn.Module):
 
 # adapted from https://github.com/HazyResearch/thanos-code/blob/main/unagi/tasks/loss_fns/contrastive_loss.py
 class CustomInfoNCELoss(nn.Module):
-    def __init__(self):
+    def __init__(self, temperature=0.1):
         super(CustomInfoNCELoss, self).__init__()
-        self.temperature = 0.1
+        self.temperature = temperature
 
     def forward(self, embeddings, labels):
         num = torch.matmul(embeddings, embeddings.T) / self.temperature

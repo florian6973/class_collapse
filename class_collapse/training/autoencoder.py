@@ -22,17 +22,18 @@ class Autoencoder(L.LightningModule):
         x, y = batch
         x = x.view(x.size(0), -1)
         y_hat = self(x)
+        temperature = self.config.hydra_config["loss"]["temperature"]
         if self.config.hydra_config["loss"]["name"] == "MSE_loss":
             x_hat = self.decoder(y_hat)
             loss = nn.functional.mse_loss(x_hat, x)
         elif self.config.hydra_config["loss"]["name"] == "supcon_2020":
-            loss = SupConLoss()(y_hat.unsqueeze(1), labels=y)
+            loss = SupConLoss(temperature=temperature)(y_hat.unsqueeze(1), labels=y)
         elif self.config.hydra_config["loss"]["name"] == "nce":
-            loss = CustomInfoNCELoss()(y_hat, y) # diverges
+            loss = CustomInfoNCELoss(temperature=temperature)(y_hat, y) # diverges
         elif self.config.hydra_config["loss"]["name"] == "spread":
             alpha = self.config.hydra_config["loss"]["alpha"]
-            loss = (1-alpha)*SupConLoss()(y_hat.unsqueeze(1), labels=y) + \
-                    alpha*CustomInfoNCELoss()(y_hat, y)
+            loss = (1-alpha)*SupConLoss(temperature=temperature)(y_hat.unsqueeze(1), labels=y) + \
+                    alpha*CustomInfoNCELoss(temperature=temperature)(y_hat, y)
         else:
             raise ValueError("Unknown loss")
         
