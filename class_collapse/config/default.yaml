@@ -3,7 +3,7 @@ model:
   embeddings_hidden: 10
   train: true
   seed: 29
-  epochs: 300
+  epochs: 600
   lr: 0.003
   visualize: false
 
@@ -21,3 +21,4 @@ hydra:
   run:
     dir: ./outputs/${model.name}_${dataset.name}_${loss.name}_${now:%Y-%m-%d}/${now:%H-%M-%S}
 # tensorflow
+# overfitting 1200 !

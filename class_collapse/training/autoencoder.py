@@ -22,7 +22,8 @@ class Autoencoder(L.LightningModule):
         x, y = batch
         x = x.view(x.size(0), -1)
         y_hat = self(x)
-        temperature = self.config.hydra_config["loss"]["temperature"]
+        if "temperature" in self.config.hydra_config["loss"]:
+            temperature = self.config.hydra_config["loss"]["temperature"]
         if self.config.hydra_config["loss"]["name"] == "MSE_loss":
             x_hat = self.decoder(y_hat)
             loss = nn.functional.mse_loss(x_hat, x)
@@ -77,7 +78,7 @@ def train_model(config: Config, model, dataloader: DataLoader) -> L.LightningMod
 
     if config.hydra_config["model"]["train"]:
         trainer = L.Trainer(max_epochs=config.hydra_config['model']['epochs'], accelerator="auto", devices="auto", strategy="auto")
-        trainer.fit(model=model, train_dataloaders=dataloader)
+        trainer.fit(model=model, train_dataloaders=dataloader) 
 
     model.eval()
 
