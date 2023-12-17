@@ -10,6 +10,9 @@ model:
 dataset:
   batch_size: -1
 
+loss:
+  augmentation: 0
+
 defaults:
   - _self_
   - /output: default_output

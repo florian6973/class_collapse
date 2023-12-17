@@ -1,5 +1,6 @@
 from torch import nn, optim
 import lightning as L
+import torch
 from class_collapse.config.config import Config
 from class_collapse.training.losses import CustomInfoNCELoss, SupConLoss, CustomCELoss
 
@@ -21,6 +22,7 @@ class Autoencoder(L.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         x = x.view(x.size(0), -1)
+        x = x + torch.randn_like(x) * self.config.hydra_config["loss"]["augmentation"]
         y_hat = self(x)
         if "temperature" in self.config.hydra_config["loss"]:
             temperature = self.config.hydra_config["loss"]["temperature"]

@@ -8,6 +8,8 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 import torch
+# svm
+from sklearn.svm import SVC
 
 class KNNClassifier:
     def __init__(self, model, data):
@@ -15,6 +17,8 @@ class KNNClassifier:
         self.data = data
         self.knn_fine = KNeighborsClassifier(n_neighbors=3)
         self.knn_coarse = KNeighborsClassifier(n_neighbors=3)
+        # self.knn_fine = SVC()
+        # self.knn_coarse = SVC()
 
     def get_embeddings(self, x):
         embeddings = self.model(torch.Tensor(x)).detach().cpu().numpy()
